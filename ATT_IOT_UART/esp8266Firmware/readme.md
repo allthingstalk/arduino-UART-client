@@ -31,19 +31,25 @@ Returns: okATW’
 ###ATI###
 Initialize
 Params: 
+
 •	deviceId: string, the id of the device.
 •	Clientid: string, the id of the client
 •	clientKey: string, the client key
+
 Returns: ‘okATI’
 ###ATC###
 Connect to the http server
 Params: 
+
 •	http server: string, dns name of the http api server
+
 Returns: ‘okATC’
 ###ATB###
 Subscribe to the broker
 Params: 
+
 •	mqtt server: string, dns name of the broker
+
 Returns: ‘okATB’
 ###ATA###
 Add asset
@@ -59,6 +65,7 @@ Params: none
 Returns:
 When no values: ‘ok’
 otherwise:
+
 •	pin nr: string
 •	payload: string value
 

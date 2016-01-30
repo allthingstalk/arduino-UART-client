@@ -72,6 +72,7 @@ void loop()
      sensorVal = sensorRead;
      SendValue();
   }
+  Device.Process();
 }
 
 void SendValue()

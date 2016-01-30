@@ -89,12 +89,13 @@ void loop()
 // Callback function: handles messages that were sent from the iot platform to this device.
 void callback(int pin, String& value) 
 { 
+	Serial.print("incoming data for: ");               //display the value that arrived from the cloud.
+	Serial.print(pin);
+	Serial.print(", value: ");
+	Serial.print(value);
+	
     if(pin == DigitalActuator)
     {
-        Serial.print("incoming data for: ");               //display the value that arrived from the cloud.
-        Serial.print(pin);
-        Serial.print(", value: ");
-        Serial.print(value);
         if(value == "true")
             digitalWrite(pin, HIGH);
         else    
