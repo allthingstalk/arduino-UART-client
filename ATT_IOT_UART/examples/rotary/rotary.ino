@@ -6,7 +6,7 @@
   
   version 1.0 dd 26/12/2015
   
-  This sketch is an example sketch to deploy the Grove - switch (101020004) to the AllThingsTalk IoT developer cloud. 
+  This sketch is an example sketch to deploy the Grove - buzzer (107020000) to the AllThingsTalk IoT developer cloud. 
  
   
   ### Instructions
@@ -15,7 +15,7 @@
     - Use an Arduino Genuino 101 IoT board
     - Connect the Arduino Grove shield
 	- Connect USB cable to your computer
-    - Connect a Grove switch to PIN D2 of the Arduino shield
+    - Connect a Grove buzzer to PIN A2 of the Arduino shield
     - Grove UART wifi to pin UART (D0,D1)
 
   2. Add 'ATT_IOT_UART' library to your Arduino Environment. [Try this guide](http://arduino.cc/en/Guide/Libraries)
@@ -36,7 +36,7 @@ char mqttServer[] = "broker.smartliving.io";                    // MQTT Server A
 // Define the assets
 // For digital and analog sensors, we recommend to use the physical pin id as the asset id.  
 // For other sensors (I2C and UART), you can select any other (unique) number as id for the asset.
-#define switchId 2                                        // Analog Sensor is connected to pin A0 on grove shield 
+#define rotaryId 2                                        // Analog Sensor is connected to pin A0 on grove shield 
 
 //required for the device
 void callback(int pin, String& value);
@@ -58,42 +58,29 @@ void setup()
   while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("retrying");
     
-  Device.AddAsset(switchId, "switch", "switch sensor", false, "boolean");   // Create the Sensor asset for your device
+  Device.AddAsset(rotaryId, "rotary", "turn knob", false, "{\"type\": \"integer\",\"minimum\":0,\"maximum\":1023}");   // Create the Sensor asset for your device
   
   delay(1000);                                                 //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
     Serial.println("retrying");
 	
-  pinMode(switchId, INPUT);                                // initialize the digital pin as an input.          
-  Serial.println("switch is ready!");	
+  pinMode(rotaryId, INPUT);                                // initialize the digital pin as an input.          
+  Serial.println("rotary is ready!");	
 }
 
-bool sensorVal = false;
-bool currentValue = false;
+unsigned int  sensorVal = 0;
 
 void loop() 
 {
-  bool sensorRead = digitalRead(switchId);                 // read status Digital Sensor
+  unsigned int  sensorRead = analogRead(rotaryId);                 // read status Digital Sensor
   if (sensorVal != sensorRead)                              // verify if value has changed
   {
-    sensorVal = sensorRead;
-	if(sensorVal){												//only send the value when pressed down.
-		currentValue = !currentValue;							//before sending the value, invert it, cause the button was pressed, so the state has changed.
-		SendValue();
-	}
+     sensorVal = sensorRead;
+	 Device.Send(String(sensorVal), rotaryId);
   }
   Device.Process();
 }
 
-void SendValue()
-{
-  Serial.print("button changed to: ");
-  Serial.println(currentValue);
-  if(currentValue)
-    Device.Send("true", switchId);
-  else
-    Device.Send("false", switchId);
-}
 
 
 // Callback function: handles messages that were sent from the iot platform to this device.

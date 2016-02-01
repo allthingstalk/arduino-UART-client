@@ -6,16 +6,16 @@
   
   version 1.0 dd 26/12/2015
   
-  This sketch is an example sketch to deploy the Grove - switch (101020004) to the AllThingsTalk IoT developer cloud. 
+  This sketch is an example sketch to deploy the Grove - line finder (101020009) to the AllThingsTalk IoT developer cloud. 
  
   
   ### Instructions
 
   1. Setup the Arduino hardware
     - Use an Arduino Genuino 101 IoT board
-    - Connect the Arduino Grove shield
+    - Connect the Arduino Grove shield (make certain it is set to 5 volt, the line finder only works at this voltage level)
 	- Connect USB cable to your computer
-    - Connect a Grove switch to PIN D2 of the Arduino shield
+    - Connect a Grove line finder to PIN D2 of the Arduino shield
     - Grove UART wifi to pin UART (D0,D1)
 
   2. Add 'ATT_IOT_UART' library to your Arduino Environment. [Try this guide](http://arduino.cc/en/Guide/Libraries)
@@ -36,7 +36,7 @@ char mqttServer[] = "broker.smartliving.io";                    // MQTT Server A
 // Define the assets
 // For digital and analog sensors, we recommend to use the physical pin id as the asset id.  
 // For other sensors (I2C and UART), you can select any other (unique) number as id for the asset.
-#define switchId 2                                        // Analog Sensor is connected to pin A0 on grove shield 
+#define finderId 2                                        // Analog Sensor is connected to pin A0 on grove shield 
 
 //required for the device
 void callback(int pin, String& value);
@@ -58,41 +58,40 @@ void setup()
   while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("retrying");
     
-  Device.AddAsset(switchId, "switch", "switch sensor", false, "boolean");   // Create the Sensor asset for your device
+  Device.AddAsset(finderId, "line finder", "line finder", false, "boolean");   // Create the Sensor asset for your device
   
   delay(1000);                                                 //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
     Serial.println("retrying");
 	
-  pinMode(switchId, INPUT);                                // initialize the digital pin as an input.          
-  Serial.println("switch is ready!");	
+  pinMode(finderId, INPUT);                                // initialize the digital pin as an input.          
+  Serial.println("line finder is ready!");	
 }
 
 bool sensorVal = false;
-bool currentValue = false;
 
 void loop() 
 {
-  bool sensorRead = digitalRead(switchId);                 // read status Digital Sensor
+  bool sensorRead = digitalRead(finderId);                 // read status Digital Sensor
   if (sensorVal != sensorRead)                              // verify if value has changed
   {
     sensorVal = sensorRead;
-	if(sensorVal){												//only send the value when pressed down.
-		currentValue = !currentValue;							//before sending the value, invert it, cause the button was pressed, so the state has changed.
-		SendValue();
-	}
+	SendValue();
   }
   Device.Process();
 }
 
 void SendValue()
 {
-  Serial.print("button changed to: ");
-  Serial.println(currentValue);
-  if(currentValue)
-    Device.Send("true", switchId);
-  else
-    Device.Send("false", switchId);
+  Serial.print("line finder's state changed to: ");
+  if(sensorVal){
+    Serial.println("black");
+    Device.Send("true", finderId);
+  }
+  else{
+    Serial.println("white");
+    Device.Send("false", finderId);
+  }
 }
 
 
