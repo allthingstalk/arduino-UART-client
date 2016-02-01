@@ -13,7 +13,7 @@
 
   1. Setup the Arduino hardware
     - Use an Arduino Genuino 101 IoT board
-    - Connect the Arduino Grove shield (make certain it is set to 5 volt, the line finder only works at this voltage level)
+    - Connect the Arduino Grove shield (make certain it is set to 5 volt + an external power supply - usb is not enough, the line finder only works at this voltage level)
 	- Connect USB cable to your computer
     - Connect a Grove line finder to PIN D2 of the Arduino shield
     - Grove UART wifi to pin UART (D0,D1)

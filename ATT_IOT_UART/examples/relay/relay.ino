@@ -64,6 +64,7 @@ void setup()
 	Serial.println("retrying");
 	
   pinMode(relayId, OUTPUT);
+  Device.Send("false", relayId);                                //let platform know current value of relay (when device is turned off, the relay will also switch off)
   Serial.println("relay is ready!");	
 }
 

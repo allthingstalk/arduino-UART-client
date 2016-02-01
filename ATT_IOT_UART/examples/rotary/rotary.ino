@@ -73,10 +73,10 @@ unsigned int  sensorVal = 0;
 void loop() 
 {
   unsigned int  sensorRead = analogRead(rotaryId);                 // read status Digital Sensor
-  if (sensorVal != sensorRead)                              // verify if value has changed
+  if (sensorVal != sensorRead && abs(sensorVal - sensorRead) > 3)  // verify if value has changed, compensate for wobling sensor
   {
      sensorVal = sensorRead;
-	 Device.Send(String(sensorVal), rotaryId);
+	   Device.Send(String(sensorVal), rotaryId);
   }
   Device.Process();
 }

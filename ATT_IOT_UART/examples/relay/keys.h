@@ -2,11 +2,7 @@
 // Enter below your client credentials. 
 //These credentials can be found in the configuration pane under your device in the smartliving.io website 
 
-#define DEVICEID "JURVu7wi0zmmxvhbEmTOqfm"                   // Your device id comes here
-#define CLIENTID "Peter67"                                   // Your client id comes here;
-#define CLIENTKEY "hbjkjzqeom1"                              // Your client key comes here;
+#define DEVICEID "z0dVVZVvzWL4AyoOJTZ17ZW"                   // Your device id comes here
+#define CLIENTID "testjan"                                   // Your client id comes here;
+#define CLIENTKEY "5i4duakv2bq"                              // Your client key comes here;
 
-// Enter below your WiFi credentials. 
-
-#define WIFI_SSID "telenet-536B5"
-#define WIFI_PWD "M41NNpNPzXH7"
