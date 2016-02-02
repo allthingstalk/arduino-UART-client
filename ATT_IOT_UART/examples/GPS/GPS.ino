@@ -88,8 +88,8 @@ void loop()
 void SendValue()
 {
     Serial.print("sending gps data");
-	String data;
-	data = "{\"latitude\": " + String(latitude) + ", \"longitude\"" + String(longitude) + ", \"altitude\"" + String(altitude) + ", \"time\"" + String(time) + "}"
+	  String data;
+	  data = "{\"latitude\": " + String(latitude) + ", \"longitude\"" + String(longitude) + ", \"altitude\"" + String(altitude) + ", \"time\"" + String(timestamp) + "}";
     Device.Send(data, GPSId);
 }
 
@@ -114,7 +114,7 @@ bool readCoordinates()
             if(count == 64)break;
         }
         //Serial.println(count); 
-        //Serial.println((char*)buffer);
+        Serial.println((char*)buffer);
         foundGPGGA = count > 60 && ExtractValues();  // if we have less then 60 characters, then we have bogus input, so don't try to parse it or process the values
         clearBufferArray();                          // call clearBufferArray function to clear the stored data from the array
         count = 0;                                   // set counter of while loop to zero

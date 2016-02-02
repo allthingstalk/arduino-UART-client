@@ -1,7 +1,7 @@
 
 #include "ATT_IOT_UART.h"                       //AllThingsTalk Arduino UART IoT library
 #include <SPI.h>                                //required to have support for signed/unsigned long type.
-#include "settings.h"                           //keep all your personal account information in a seperate file
+#include "keys.h"                           //keep all your personal account information in a seperate file
 
 /*
   Arduino UART Demo Sketch. This Sketch is made for an Genuino 101 IoT board with a Grove UART WiFi module 
@@ -38,8 +38,8 @@
 
 // these constants won't change. They are the
 // lowest and highest readings you get from your sensor:
-const int sensorMin = 0;      // sensor minimum value
-const int sensorMax = 1023;   // sensor maximum value
+#define sensorMin 0      // sensor minimum value
+#define sensorMax 1023   // sensor maximum value
 
 
 #define ARRAYSIZE 6
@@ -61,24 +61,27 @@ void callback(int pin, String& value);
 
 void setup()
 {
-  pinMode(AnalogSensor, INPUT);                                // initialize the pin as an input.               
-  Serial.begin(9600);                                          // init serial link for debugging
+  Serial.begin(57600);                                          // init serial link for debugging
   
   while (!Serial) ;                                            // This line makes sure you see all output on the monitor. REMOVE THIS LINE if you want your IoT board to run without monitor !
-  Serial.println("Starting the Genuino 101 board");
+  Serial.println("Starting sketch");
   Serial1.begin(115200);                                       //init serial link for wifi module
   
+   while(!Device.StartWifi())
+    Serial.println("retrying...");
   while(!Device.Init(DEVICEID, CLIENTID, CLIENTKEY))           //if we can't succeed to initialize and set the device credentials, there is no point to continue
     Serial.println("retrying...");
-  while(!Device.StartWifi(WIFI_SSID, WIFI_PWD))                //if we can't succeed to initialize the WiFi, there is no point to continue
-	Serial.println("retrying...");
   while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("retrying");
     
   Device.AddAsset(AnalogSensor, "Lightsensor", "Light sensor", false, "string");   // Create the Sensor asset for your device
+  
   delay(1000);                                                 //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
 	Serial.println("retrying");
+	
+  pinMode(AnalogSensor, INPUT);                                // initialize the pin as an input.               	
+  Serial.println("light sensor is ready!");
 }
 
 int Prev_range = 0;

@@ -68,17 +68,18 @@ void setup()
   Serial.println("rotary is ready!");	
 }
 
-unsigned int  sensorVal = 0;
+int  sensorVal = 0;
 
 void loop() 
 {
-  unsigned int  sensorRead = analogRead(rotaryId);                 // read status Digital Sensor
-  if (sensorVal != sensorRead && abs(sensorVal - sensorRead) > 3)  // verify if value has changed, compensate for wobling sensor
+  int  sensorRead = analogRead(rotaryId);                 // read status Digital Sensor
+  if (sensorVal != sensorRead && (abs(sensorVal - sensorRead) > 3 || sensorRead == 0 || sensorRead == 1023))  // verify if value has changed, compensate for wobling sensor
   {
      sensorVal = sensorRead;
 	   Device.Send(String(sensorVal), rotaryId);
   }
   Device.Process();
+  delay(100);
 }
 
 

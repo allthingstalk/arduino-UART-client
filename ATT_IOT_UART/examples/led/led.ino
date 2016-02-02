@@ -64,6 +64,7 @@ void setup()
 	Serial.println("retrying");
 	
   pinMode(ledId, OUTPUT);
+  Device.Send("false", ledId);                                //let the cloud know the correct initial state of the led.
   Serial.println("led is ready!");	
 }
 

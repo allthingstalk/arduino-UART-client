@@ -58,14 +58,14 @@ void setup()
   while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("retrying");
     
-  Device.AddAsset(buzzerId, "switch", "switch sensor", false, "boolean");   // Create the Sensor asset for your device
+  Device.AddAsset(buzzerId, "switch", "switch sensor", true, "boolean");   // Create the Sensor asset for your device
   
   delay(1000);                                                 //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
     Serial.println("retrying");
 	
   pinMode(buzzerId, INPUT);                                // initialize the digital pin as an input.          
-  Serial.println("switch is ready!");	
+  Serial.println("buzzer is ready!");	
 }
 
 bool sensorVal = false;
