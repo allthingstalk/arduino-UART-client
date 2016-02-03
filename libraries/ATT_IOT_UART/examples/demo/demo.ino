@@ -68,7 +68,7 @@ void setup()
   while(!Device.Subscribe(mqttServer, callback))                // make certain that we can receive message from the iot platform (activate mqtt). This stops the http connection
     Serial.println("retrying");
 	
-  Device.Send("false", DigitalSensor);
+  Device.Send("false", DigitalActuator);
   Serial.println("button is ready");
 }
 
