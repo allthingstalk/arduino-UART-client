@@ -69,7 +69,6 @@ void setup()
 }
 
 bool sensorVal = false;
-bool currentValue = false;
 
 void loop() 
 {
@@ -77,10 +76,7 @@ void loop()
   if (sensorVal != sensorRead)                              // verify if value has changed
   {
     sensorVal = sensorRead;
-	if(sensorVal){												//only send the value when pressed down.
-		currentValue = !currentValue;							//before sending the value, invert it, cause the button was pressed, so the state has changed.
-		SendValue();
-	}
+	SendValue();
   }
   Device.Process();
 }
@@ -88,8 +84,8 @@ void loop()
 void SendValue()
 {
   Serial.print("button changed to: ");
-  Serial.println(currentValue);
-  if(currentValue)
+  Serial.println(sensorVal);
+  if(sensorVal)
     Device.Send("true", switchId);
   else
     Device.Send("false", switchId);

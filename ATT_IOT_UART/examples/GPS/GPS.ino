@@ -63,7 +63,7 @@ void setup()
   while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("retrying");
     
-  Device.AddAsset(GPSId, "GPS", "GPS location", false, "{\"type\": \"object\",\"properties\": {\"latitude\": {\"type\": \"number\", \"unit\": \"°\"},\"longitude\": {\"type\": \"number\", \"unit\": \"°\"},\"altitude\": {\"type\": \"number\", \"unit\": \"°\"},\"time\": {\"type\": \"number\", \"unit\": \"epoc time\"}},\"required\": [\"latitude\",\"longitude\",\"longitude\",\"time\" ]}");   // Create the Sensor asset for your device
+  Device.AddAsset(GPSId, "GPS", "GPS location", false, "{\"type\": \"object\",\"properties\": {\"lat\": {\"type\": \"number\", \"unit\": \"°\"},\"lng\": {\"type\": \"number\", \"unit\": \"°\"},\"alt\": {\"type\": \"number\", \"unit\": \"°\"},\"time\": {\"type\": \"integer\", \"unit\": \"epoc time\"}},\"required\": [\"lat\",\"lng\",\"alt\",\"time\" ]}");   // Create the Sensor asset for your device, use short names, this mqtt only handles 128 bytes, including header
   
   delay(1000);                                                 //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
@@ -82,14 +82,14 @@ void loop()
 {
   if(readCoordinates() == true) SendValue();
   Device.Process();
-  delay(3000);
+  delay(5000);
 }
 
 void SendValue()
 {
     Serial.print("sending gps data");
 	  String data;
-	  data = "{\"latitude\": " + String(latitude) + ", \"longitude\"" + String(longitude) + ", \"altitude\"" + String(altitude) + ", \"time\"" + String(timestamp) + "}";
+	  data = "{\"lat\":" + String(latitude, 3) + ",\"lng\":" + String(longitude, 3) + ",\"alt\":" + String(altitude, 3) + ",\"time\":" + String((int)timestamp) + "}";
     Device.Send(data, GPSId);
 }
 
@@ -113,8 +113,8 @@ bool readCoordinates()
             buffer[count++]=SoftSerial.read();      // writing data into array
             if(count == 64)break;
         }
-        //Serial.println(count); 
-        Serial.println((char*)buffer);
+        //use the following line to see the raw data coming from the gps
+        //Serial.println((char*)buffer);
         foundGPGGA = count > 60 && ExtractValues();  // if we have less then 60 characters, then we have bogus input, so don't try to parse it or process the values
         clearBufferArray();                          // call clearBufferArray function to clear the stored data from the array
         count = 0;                                   // set counter of while loop to zero

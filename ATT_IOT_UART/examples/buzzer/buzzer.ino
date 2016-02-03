@@ -58,7 +58,7 @@ void setup()
   while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("retrying");
     
-  Device.AddAsset(buzzerId, "switch", "switch sensor", true, "boolean");   // Create the Sensor asset for your device
+  Device.AddAsset(buzzerId, "buzzer", "make some noise", true, "boolean");   // Create the Sensor asset for your device
   
   delay(1000);                                                 //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
@@ -68,31 +68,10 @@ void setup()
   Serial.println("buzzer is ready!");	
 }
 
-bool sensorVal = false;
-bool currentValue = false;
 
 void loop() 
 {
-  bool sensorRead = digitalRead(buzzerId);                 // read status Digital Sensor
-  if (sensorVal != sensorRead)                              // verify if value has changed
-  {
-    sensorVal = sensorRead;
-	if(sensorVal){												//only send the value when pressed down.
-		currentValue = !currentValue;							//before sending the value, invert it, cause the button was pressed, so the state has changed.
-		SendValue();
-	}
-  }
   Device.Process();
-}
-
-void SendValue()
-{
-  Serial.print("button changed to: ");
-  Serial.println(currentValue);
-  if(currentValue)
-    Device.Send("true", buzzerId);
-  else
-    Device.Send("false", buzzerId);
 }
 
 
@@ -100,8 +79,17 @@ void SendValue()
 void callback(int pin, String& value) 
 { 
     Serial.print("incoming data for: ");               //display the value that arrived from the AllThingsTalk IOT developer cloud.
-    Serial.print(pin);
-    Serial.print(", value: ");
-    Serial.print(value);
+  Serial.print(pin);
+  Serial.print(", value: ");
+  Serial.print(value);
+  
+  if(pin == buzzerId)
+    {
+        if(value == "true")
+            digitalWrite(buzzerId, HIGH);
+        else    
+            digitalWrite(buzzerId, LOW);
+        Device.Send(value, buzzerId);                            //send the value back for confirmation
+    }
 }
 

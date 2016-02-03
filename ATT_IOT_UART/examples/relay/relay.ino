@@ -81,7 +81,6 @@ void callback(int pin, String& value)
 	Serial.print(pin);
 	Serial.print(", value: ");
 	Serial.print(value);
-	Device.Send(value, pin);                            //send the value back for confirmation   
 	
 	if(pin == relayId)
     {

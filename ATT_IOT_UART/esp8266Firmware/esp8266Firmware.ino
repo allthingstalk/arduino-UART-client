@@ -23,7 +23,7 @@ WiFiClient ethClient;
 PubSubClient *pubSub = NULL;  // mqttServer, 1883, callback,
 
 #define SERIALSPEED 115200
-#define INPUTBUFFERSIZE 255
+#define INPUTBUFFERSIZE 500
 char inputBuffer[INPUTBUFFERSIZE];                          //the input buffer for receiving commands
 String receivedPayload;
 int receivedPin;

@@ -67,6 +67,9 @@ void setup()
   delay(1000);                                                  //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))                // make certain that we can receive message from the iot platform (activate mqtt). This stops the http connection
     Serial.println("retrying");
+	
+  Device.Send("false", DigitalSensor);
+  Serial.println("button is ready");
 }
 
 
