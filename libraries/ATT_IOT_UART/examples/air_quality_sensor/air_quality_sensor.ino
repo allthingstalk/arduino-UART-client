@@ -6,7 +6,7 @@
   
   version 1.0 dd 26/12/2015
   
-  This sketch is an example sketch to deploy the Grove - buzzer (107020000) to the AllThingsTalk IoT developer cloud. 
+  This sketch is an example sketch to deploy the Grove - air quality sensor (101020078) to the AllThingsTalk IoT developer cloud. 
  
   
   ### Instructions
@@ -14,7 +14,7 @@
   1. Setup the Arduino hardware
     - Use an Arduino Genuino 101 IoT board
     - Connect the Arduino Grove shield
-	- Connect USB cable to your computer
+    - Connect USB cable to your computer
     - Connect a Grove buzzer to PIN A2 of the Arduino shield
     - Grove UART wifi to pin UART (D0,D1)
 
@@ -28,7 +28,7 @@
 #include "ATT_IOT_UART.h"                       //AllThingsTalk Arduino UART IoT library
 #include <SPI.h>                                //required to have support for signed/unsigned long type.
 #include "keys.h"                           //keep all your personal account information in a seperate file
-#include <stdint.h>
+#include "AirQuality2.h"
 
 ATTDevice Device(&Serial1);                  
 char httpServer[] = "api.smartliving.io";                       // HTTP API Server host                  
@@ -37,8 +37,9 @@ char mqttServer[] = "broker.smartliving.io";                    // MQTT Server A
 // Define the assets
 // For digital and analog sensors, we recommend to use the physical pin id as the asset id.  
 // For other sensors (I2C and UART), you can select any other (unique) number as id for the asset.
-#define rotaryId 2                                        
-#define SAMPLE_SIZE 50										//the number of times we are going to take a sample of the sensor, so we can average the value.
+#define airId 2                                                 //pin of the sensor + id of asset for raw data 
+#define textId 3                                                //id of asset that displays converted value
+AirQuality2 airqualitysensor;
 
 //required for the device
 void callback(int pin, String& value);
@@ -60,31 +61,48 @@ void setup()
   while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("retrying");
     
-  Device.AddAsset(rotaryId, "rotary", "turn knob", false, "{\"type\": \"integer\",\"minimum\":0,\"maximum\":1023}");   // Create the Sensor asset for your device
+  Device.AddAsset(textId, "air quality", "air quality, converted in meaningful string", false, "string");   // Create the Sensor asset for your device
+  Device.AddAsset(airId, "raw air measurement", "raw measured value", false, "{\"type\": \"integer\",\"minimum\":0,\"maximum\":1023}");   // Create the Sensor asset for your device
   
   delay(1000);                                                 //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
     Serial.println("retrying");
-	
-  pinMode(rotaryId, INPUT);                                // initialize the digital pin as an input.          
-  Serial.println("rotary is ready!");	
+    
+  airqualitysensor.init(airId);
+  Serial.println("air quality sensor is ready!");   
 }
 
-int  sensorVal = 0;
+int sensorVal = -1;                                         //set to -1, this can't be read from teh device, so the first measured value will update the cloud
+int evaluateVal = -1;
 
 void loop() 
 {
-	int32_t sensorRead 0;
-	for(int i = 0; i < SAMPLE_SIZE; i++)					//we take a number of samples and average out this value, so we can filter out any 'wobles' that the sensor has -> prevent the sensor from continuously jumping 
-		sensorRead += analogRead(rotaryId);                 
-	sensorRead /= SAMPLE_SIZE;
-	if (sensorVal != sensorRead )  // verify if value has changed, compensate for wobling sensor
-	{
-		sensorVal = sensorRead;
-		Device.Send(String(sensorVal), rotaryId);
-  }
-  Device.Process();
-  delay(100);
+    int sensorRead = airqualitysensor.getRawData();
+    if (sensorVal != sensorRead ) 
+    {
+        Serial.print("Air quality: "); Serial.print(sensorVal); Serial.println("(raw)");
+        sensorVal = sensorRead;
+        Device.Send(String(sensorVal), airId);
+    }
+    
+    sensorRead = airqualitysensor.evaluate();
+    if (evaluateVal != sensorRead ) 
+    {
+        String text;
+        evaluateVal = sensorRead;
+        if(evaluateVal == 0)
+            text = "good air quality";
+        else if(evaluateVal == 1)
+            text = "low pollution";
+        else if(evaluateVal == 2)
+            text = "high pollution";
+        if(evaluateVal == 3)
+            text = "very high pollution";
+        Serial.println(text);
+        Device.Send(text, textId);
+    }
+    Device.Process();
+    delay(2000);
 }
 
 

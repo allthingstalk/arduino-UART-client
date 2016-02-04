@@ -1,4 +1,4 @@
-/*
+/****
   Arduino UART Demo Sketch. This Sketch is made for an Genuino 101 IoT board with a Grove UART WiFi module 
   based on the popular ESP8266 IoT SoC to communicate to the AllThingsTalk IoT developer cloud
 
@@ -6,48 +6,43 @@
   
   version 1.0 dd 26/12/2015
   
-  This sketch is an example sketch to deploy the Grove - buzzer (107020000) to the AllThingsTalk IoT developer cloud. 
+  This sketch is an example sketch to deploy the grove temperature sensor (311070006) and the grove screw terminal (103020007) to the AllThingsTalk IoT developer cloud. 
  
   
   ### Instructions
 
   1. Setup the Arduino hardware
     - Use an Arduino Genuino 101 IoT board
-    - Connect the Arduino Grove shield
-	- Connect USB cable to your computer
-    - Connect a Grove buzzer to PIN A2 of the Arduino shield
+    - Connect the Arduino Grove shield, 
+    - Connect USB cable to your computer
+    - connect a Grove door sensor and the screw to PIN D2 of the Arduino shield
     - Grove UART wifi to pin UART (D0,D1)
 
   2. Add 'ATT_IOT_UART' library to your Arduino Environment. [Try this guide](http://arduino.cc/en/Guide/Libraries)
-  3. Fill in the missing strings (deviceId, clientId, clientKey) in the keys.h file. 
-  4. Optionally, change sensor names, labels as appropriate. For extra actuators, make certain to extend the callback code at the end of the sketch.
+  3. fill in the missing strings (deviceId, clientId, clientKey, WIFI_SSID,WIFI_PWD) in the settings.h file. 
+  4. Optionally, change sensor names, labels as appropiate. For extra actuators, make certain to extend the callback code at the end of the sketch.
   4. Upload the sketch
-*/
-
+ */
 
 #include "ATT_IOT_UART.h"                       //AllThingsTalk Arduino UART IoT library
 #include <SPI.h>                                //required to have support for signed/unsigned long type.
 #include "keys.h"                           //keep all your personal account information in a seperate file
-#include <stdint.h>
 
 ATTDevice Device(&Serial1);                  
 char httpServer[] = "api.smartliving.io";                       // HTTP API Server host                  
 char mqttServer[] = "broker.smartliving.io";                    // MQTT Server Address
 
-// Define the assets
-// For digital and analog sensors, we recommend to use the physical pin id as the asset id.  
-// For other sensors (I2C and UART), you can select any other (unique) number as id for the asset.
-#define rotaryId 2                                        
-#define SAMPLE_SIZE 50										//the number of times we are going to take a sample of the sensor, so we can average the value.
+// Define PIN numbers for assets
+#define DoorSensor 2            
 
 //required for the device
 void callback(int pin, String& value);
 
+bool sensorVal = false;
 
 void setup() 
 {
   Serial.begin(57600);                                         // init serial link for debugging
-  
   while (!Serial) ;                                            // This line makes sure you see all output on the monitor. REMOVE THIS LINE if you want your IoT board to run without monitor !
   Serial.println("Starting sketch");
   Serial1.begin(115200);                                       //init serial link for wifi module
@@ -60,33 +55,40 @@ void setup()
   while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("retrying");
     
-  Device.AddAsset(rotaryId, "rotary", "turn knob", false, "{\"type\": \"integer\",\"minimum\":0,\"maximum\":1023}");   // Create the Sensor asset for your device
+  Device.AddAsset(DoorSensor, "door switch", "monitor if door is open or not", false, "boolean");   // Create the Sensor asset for your device
   
   delay(1000);                                                 //give the wifi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
     Serial.println("retrying");
-	
-  pinMode(rotaryId, INPUT);                                // initialize the digital pin as an input.          
-  Serial.println("rotary is ready!");	
-}
 
-int  sensorVal = 0;
+  pinMode(DoorSensor, INPUT);                                // initialize the digital pin as an input.          
+  sensorVal = digitalRead(DoorSensor);						 // get the initial state of the sensor and update the cloud so that the cloud is in sync with the device.
+  SendValue();
+  Serial.println("door switch is ready");
+}
 
 void loop() 
 {
-	int32_t sensorRead 0;
-	for(int i = 0; i < SAMPLE_SIZE; i++)					//we take a number of samples and average out this value, so we can filter out any 'wobles' that the sensor has -> prevent the sensor from continuously jumping 
-		sensorRead += analogRead(rotaryId);                 
-	sensorRead /= SAMPLE_SIZE;
-	if (sensorVal != sensorRead )  // verify if value has changed, compensate for wobling sensor
-	{
-		sensorVal = sensorRead;
-		Device.Send(String(sensorVal), rotaryId);
+  bool sensorRead = digitalRead(DoorSensor);                 // read status Digital Sensor
+  if (sensorVal != sensorRead)                              // verify if value has changed
+  {
+     sensorVal = sensorRead;
+     SendValue();
   }
   Device.Process();
-  delay(100);
 }
 
+void SendValue()
+{
+  if(sensorVal){
+    Serial.println("door closed");
+    Device.Send("true", DoorSensor);
+  }
+  else{
+    Serial.println("door opened");
+    Device.Send("false", DoorSensor);
+  }
+}
 
 
 // Callback function: handles messages that were sent from the iot platform to this device.
@@ -96,5 +98,6 @@ void callback(int pin, String& value)
     Serial.print(pin);
     Serial.print(", value: ");
     Serial.print(value);
+    Device.Send(value, pin);                            //send the value back for confirmation   
 }
 

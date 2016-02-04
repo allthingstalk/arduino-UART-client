@@ -15,7 +15,7 @@
     - Use an Arduino Genuino 101 IoT board
     - Connect the Arduino Grove shield, 
     - Connect USB cable to your computer
-    - connect a Grove push button to PIN D@ of the Arduino shield
+    - connect a Grove push button to PIN D2 of the Arduino shield
     - Grove UART wifi to pin UART (D0,D1)
 
   2. Add 'ATT_IOT_UART' library to your Arduino Environment. [Try this guide](http://arduino.cc/en/Guide/Libraries)
