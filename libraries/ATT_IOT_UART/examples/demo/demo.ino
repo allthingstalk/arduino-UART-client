@@ -46,8 +46,10 @@ void callback(int pin, String& value);
 
 void setup()
 {
+  pinMode(DigitalSensor, INPUT);                                // initialize the digital pin as an input.          
+  pinMode(DigitalActuator, OUTPUT);                             // initialize the digital pin as an output.          
   Serial.begin(57600);                                          // init serial link for debugging
-  while (!Serial && millis() < 1000) ;                        // This line makes sure you see all output on the monitor. After 1 sec, it will skip this step, so that the board can also work without being connected to a pc
+  while(!Serial);
   Serial.println("Starting sketch");
   Serial1.begin(115200);                                        //init software serial link for wifi
   while(!Serial1);
@@ -66,8 +68,6 @@ void setup()
   while(!Device.Subscribe(mqttServer, callback))                // make certain that we can receive message from the iot platform (activate mqtt). This stops the http connection
     Serial.println("retrying");
 	
-  pinMode(DigitalSensor, INPUT);                                // initialize the digital pin as an input.          
-  pinMode(DigitalActuator, OUTPUT);                             // initialize the digital pin as an output.          	
   Device.Send("false", DigitalActuator);
   Serial.println("button is ready");
 }

@@ -48,7 +48,7 @@ void callback(int pin, String& value);
 void setup()
 {
   Serial.begin(57600);                                 // Init serial link for debugging
-  while (!Serial && millis() < 1000) ;                 // This line makes sure you see all output on the monitor. After 1 sec, it will skip this step, so that the board can also work without being connected to a pc
+  while(!Serial && millis() < 1000);                   // Make sure you see all output on the monitor. After 1 sec, it will skip this step, so that the board can also work without being connected to a pc
   Serial.println("Starting sketch");
   Serial1.begin(115200);                               // Init serial link for WiFi module
   while(!Serial1);
@@ -66,7 +66,7 @@ void setup()
   while(!Device.Subscribe(mqttServer, callback))       // Make sure that we can receive message from the AllThingsTalk IOT developer cloud (MQTT). This stops the http connection
     Serial.println("Retrying");
 
-  pinMode(buttonId, INPUT);                            // Initialize the digital pin as an input.
+  pinMode(buttonId, INPUT);                            // Initialize the digital pin as an input.    
   Device.Send("false", buttonId);
   Serial.println("Button is ready for use!");
 }
