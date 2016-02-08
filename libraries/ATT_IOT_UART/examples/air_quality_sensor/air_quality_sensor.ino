@@ -50,9 +50,9 @@ void callback(int pin, String& value);
 
 void setup()
 {
-  pinMode(airId, INPUT);                               // Initialize the digital pin as an input.
-  Serial.begin(57600);                                 // Init serial link for debugging
-  while(!Serial) ;                                     // This line makes sure you see all output on the monitor. REMOVE THIS LINE if you want your IoT board to run without monitor !
+  Serial.begin(57600);                                 // Init serial link for debugging  
+  while (!Serial && millis() < 1000) ;                        // This line makes sure you see all output on the monitor. After 1 sec, it will skip this step, so that the board can also work without being connected to a pc
+  
   Serial.println("Starting sketch");
   Serial1.begin(115200);                               // Init serial link for WiFi module
   while(!Serial1);
@@ -71,6 +71,7 @@ void setup()
   while(!Device.Subscribe(mqttServer, callback))       // Make sure that we can receive message from the AllThingsTalk IOT developer cloud (MQTT). This stops the http connection
     Serial.println("Retrying");
 
+  pinMode(airId, INPUT);                               // Initialize the digital pin as an input.
   airqualitysensor.init(airId);
   Serial.println("Air quality sensor v1.3 is ready for use!");
 }

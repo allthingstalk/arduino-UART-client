@@ -46,7 +46,7 @@ void setup()
 {
   Serial.begin(57600);                                         // init serial link for debugging
   
-  while (!Serial) ;                                            // This line makes sure you see all output on the monitor. REMOVE THIS LINE if you want your IoT board to run without monitor !
+  while (!Serial && millis() < 1000) ;                // This line makes sure you see all output on the monitor. After 1 sec, it will skip this step, so that the board can also work without being connected to a pc
   Serial.println("Starting sketch");
   Serial1.begin(115200);                                       //init serial link for wifi module
   while(!Serial1);
@@ -67,6 +67,7 @@ void setup()
 	Serial.println("retrying");
 	
   tph.begin();
+  Serial.println("tph ready");
 }
 
 void loop()

@@ -40,7 +40,7 @@ char mqttServer[] = "broker.smartliving.io";       // MQTT Server Address
 // Define PIN numbers for assets
 // For digital and analog sensors, we recommend to use the physical pin id as the asset id
 // For other sensors (I2C and UART), you can select any unique number as the asset id
-#define switchId 2                // Digital sensor is connected to pin D2 on grove shield
+#define doorSensorId 2                // Digital sensor is connected to pin D2 on grove shield
 
 // Required for the device
 void callback(int pin, String& value);
@@ -49,9 +49,8 @@ bool sensorVal = false;
 
 void setup()
 {
-  pinMode(switchId, INPUT);                            // Initialize the digital pin as an input.
   Serial.begin(57600);                                 // Init serial link for debugging
-  while(!Serial) ;                                     // This line makes sure you see all output on the monitor. REMOVE THIS LINE if you want your IoT board to run without monitor !
+  while (!Serial && millis() < 1000) ;                        // This line makes sure you see all output on the monitor. After 1 sec, it will skip this step, so that the board can also work without being connected to a pc
   Serial.println("Starting sketch");
   Serial1.begin(115200);                               // Init serial link for WiFi module
   while(!Serial1);
@@ -63,20 +62,21 @@ void setup()
   while(!Device.Connect(httpServer))                   // Connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("Retrying");
 
-  Device.AddAsset(switchId, "Magnetic door switch", "switch", false, "boolean");   // Create the sensor asset for your device
+  Device.AddAsset(doorSensorId, "Magnetic door switch", "switch", false, "boolean");   // Create the sensor asset for your device
 
   delay(1000);                                         // Give the WiFi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))       // Make sure that we can receive message from the AllThingsTalk IOT developer cloud (MQTT). This stops the http connection
     Serial.println("Retrying");
 
-  sensorVal = digitalRead(switchId);                   // Get the initial state of the sensor
-  Device.Send(String(sensorVal), switchId);            // Send initial state
+  pinMode(doorSensorId, INPUT);                            // Initialize the digital pin as an input.
+  sensorVal = digitalRead(doorSensorId);                   // Get the initial state of the sensor
+  Device.Send(String(sensorVal), doorSensorId);            // Send initial state
   Serial.println("Magnetic door switch is ready for use!");
 }
 
 void loop() 
 {
-  bool sensorRead = digitalRead(switchId);             // Read status Digital Sensor
+  bool sensorRead = digitalRead(doorSensorId);             // Read status Digital Sensor
   if (sensorVal != sensorRead)                         // Verify if value has changed
   {
      sensorVal = sensorRead;
@@ -89,11 +89,11 @@ void SendValue()
 {
   if(sensorVal){
     Serial.println("Door closed");
-    Device.Send("true", switchId);
+    Device.Send("true", doorSensorId);
   }
   else{
     Serial.println("Door opened");
-    Device.Send("false", switchId);
+    Device.Send("false", doorSensorId);
   }
 }
 
