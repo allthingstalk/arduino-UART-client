@@ -96,7 +96,7 @@ void loop()
   }
 
   String data;
-  data = "{\"temperature (°C)\":" + String(t, 2) + ",\"humidity(%)\":" + String(h, 2) + "}";
+  data = "{\"temperature (°C)\":" + String(t, 2) + ",\"humidity (%)\":" + String(h, 2) + "}";
   Device.Send(data, sensorId);
 
   Serial.print("Humidity: ");
