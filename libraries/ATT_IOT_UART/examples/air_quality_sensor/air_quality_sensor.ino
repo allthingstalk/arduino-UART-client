@@ -50,8 +50,9 @@ void callback(int pin, String& value);
 
 void setup()
 {
+  pinMode(airId, INPUT);                               // Initialize the digital pin as an input.
   Serial.begin(57600);                                 // Init serial link for debugging
-  while(!Serial && millis() < 1000);                   // Make sure you see all output on the monitor. After 1 sec, it will skip this step, so that the board can also work without being connected to a pc
+  while(!Serial) ;                                     // This line makes sure you see all output on the monitor. REMOVE THIS LINE if you want your IoT board to run without monitor !
   Serial.println("Starting sketch");
   Serial1.begin(115200);                               // Init serial link for WiFi module
   while(!Serial1);
@@ -70,7 +71,6 @@ void setup()
   while(!Device.Subscribe(mqttServer, callback))       // Make sure that we can receive message from the AllThingsTalk IOT developer cloud (MQTT). This stops the http connection
     Serial.println("Retrying");
 
-  pinMode(airId, INPUT);                               // Initialize the digital pin as an input.
   airqualitysensor.init(airId);
   Serial.println("Air quality sensor v1.3 is ready for use!");
 }
@@ -81,31 +81,36 @@ int evaluateVal = -1;
 void loop() 
 {
   int sensorRead = airqualitysensor.getRawData();
+  Serial.println(String(sensorRead));
+  
   if (sensorVal != sensorRead ) 
   {
     Serial.print("Air quality: ");
     Serial.print(sensorVal);
     Serial.println("(raw)");
     sensorVal = sensorRead;
+    
     Device.Send(String(sensorVal), airId);
   }
-    
+   
   sensorRead = airqualitysensor.evaluate();
   if (evaluateVal != sensorRead ) 
   {
     String text;
     evaluateVal = sensorRead;
     if(evaluateVal == 0)
-      text = "good air quality";
+      text = "Good air quality";
     else if(evaluateVal == 1)
-      text = "low pollution";
+      text = "Low pollution";
     else if(evaluateVal == 2)
-      text = "high pollution";
+      text = "High pollution";
     if(evaluateVal == 3)
-      text = "very high pollution";
-    Serial.println(text);
+      text = "Very high pollution";
+    Serial.println("0|"+text);
+    
     Device.Send(text, textId);
   }
+  
   Device.Process();
   delay(2000);
 }
@@ -113,7 +118,7 @@ void loop()
 // Callback function: handles messages that were sent from the iot platform to this device.
 void callback(int pin, String& value) 
 { 
-  Serial.print("incoming data for: ");       // Display the value that arrived from the AllThingsTalk IOT developer cloud.
+  Serial.print("Incoming data for: ");       // Display the value that arrived from the AllThingsTalk IOT developer cloud.
   Serial.print(pin);
   Serial.print(", value: ");
   Serial.println(value);
