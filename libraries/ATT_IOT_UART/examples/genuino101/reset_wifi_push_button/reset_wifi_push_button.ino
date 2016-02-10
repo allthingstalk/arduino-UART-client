@@ -72,17 +72,17 @@ bool sensorVal = false;
 
 void loop() 
 {
-  bool sensorRead = digitalRead(DigitalSensor);                 // read status Digital Sensor
-  if (sensorVal != sensorRead)                              // verify if value has changed
+  bool sensorRead = digitalRead(DigitalSensor);             // Read status Digital Sensor
+  if (sensorVal != sensorRead)                              // Verify if value has changed
   {
   	if(sensorRead == true){
 	    Serial.println("resetting wifi");
   	    while(!Device.StartWifi(true))
   			Serial.println("retrying...");
-  		while(!Device.Init(DEVICEID, CLIENTID, CLIENTKEY))           //if we can't succeed to initialize and set the device credentials, there is no point to continue
+  		while(!Device.Init(DEVICEID, CLIENTID, CLIENTKEY))       // If we can't succeed to initialize and set the device credentials, there is no point to continue
   			Serial.println("retrying...");
 		delay(100);
-  		while(!Device.Subscribe(mqttServer, callback))               // make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
+  		while(!Device.Subscribe(mqttServer, callback))           // Make sure that we can receive message from the AllThingsTalk IOT developer cloud  (MQTT). This stops the http connection
   			Serial.println("retrying");
   	}
     sensorVal = sensorRead;
@@ -94,17 +94,18 @@ void loop()
 // Callback function: handles messages that were sent from the iot platform to this device.
 void callback(int pin, String& value) 
 { 
-    if(pin == Led)
-    {
-        Serial.print("incoming data for: ");               //display the value that arrived from the cloud.
-        Serial.print(pin);
-        Serial.print(", value: ");
-        Serial.print(value);
-        if(value == "true")
-            digitalWrite(pin, HIGH);
-        else    
-            digitalWrite(pin, LOW);
-        Device.Send(value, pin);                            //send the value back for confirmation
-    }
+  if(pin == Led)
+  {
+    Serial.print("Incoming data for: ");               // Display the value that arrived from the cloud.
+    Serial.print(pin);
+    Serial.print(", value: ");
+    Serial.println(value);
+
+    if(value == "true")
+      digitalWrite(pin, HIGH);
+    else    
+      digitalWrite(pin, LOW);
+    Device.Send(value, pin);                          // Send the value back for confirmation
+  }
 }
 
