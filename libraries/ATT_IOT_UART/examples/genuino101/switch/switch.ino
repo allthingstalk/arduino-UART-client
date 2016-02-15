@@ -8,16 +8,16 @@ communicates through Serial1 of the Genuino 101 board.
 
 Version 1.0 dd 26/12/2015
 
-This sketch is an example sketch to deploy the Grove Switch(P) (101020001) to the
-AllThingsTalk IoT developer cloud.
+This sketch is an example sketch to deploy the Grove Switch (101020001) to the AllThingsTalk
+IoT developer cloud.
 
 
 ### Instructions
 1. Setup the Arduino hardware
   - Use an Arduino Genuino 101 IoT board
-  - Connect the Arduino Grove shield, make sure the switch is set to 3.3V
+  - Connect the Arduino Grove shield
   - Connect USB cable to your computer
-  - Connect a Grove Switch(P) to pin D2 of the Arduino shield
+  - Connect a Grove Switch to pin D2 of the Arduino shield
   - Grove UART wifi to pin UART (D0,D1)
 2. Add 'ATT_IOT_UART' library to your Arduino Environment
      More info can be found at http://arduino.cc/en/Guide/Libraries

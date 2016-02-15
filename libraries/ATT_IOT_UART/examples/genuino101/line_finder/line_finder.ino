@@ -15,7 +15,7 @@ AllThingsTalk IoT developer cloud.
 ### Instructions
 1. Setup the Arduino hardware
   - Use an Arduino Genuino 101 IoT board
-  - Connect the Arduino Grove shield, make sure the switch is set to 5V
+  - Connect the Arduino Grove shield, make sure the switch is set to 5.0V
   - Connect USB cable to your computer
   - Connect a Grove Line finder to pin D2 of the Arduino shield
   - Grove UART wifi to pin UART (D0,D1)

@@ -8,16 +8,16 @@ communicates through Serial1 of the Genuino 101 board.
 
 Version 1.0 dd 26/12/2015
 
-This sketch is an example sketch to deploy the Grove Gas sensor (MQ5) (101020055) to the
+This sketch is an example sketch to deploy the Grove Rotary angle sensor (101020017) to the
 AllThingsTalk IoT developer cloud.
 
 
 ### Instructions
 1. Setup the Arduino hardware
   - Use an Arduino Genuino 101 IoT board
-  - Connect the Arduino Grove shield, make sure the switch is set to 5V
+  - Connect the Arduino Grove shield
   - Connect USB cable to your computer
-  - Connect a Grove Gas sensor (MQ2) to pin A0 of the Arduino shield
+  - Connect a Grove Rotary angle sensor to pin A2 of the Arduino shield
   - Grove UART wifi to pin UART (D0,D1)
 2. Add 'ATT_IOT_UART' library to your Arduino Environment
      More info can be found at http://arduino.cc/en/Guide/Libraries
@@ -40,7 +40,8 @@ char mqttServer[] = "broker.smartliving.io";       // MQTT Server Address
 // Define PIN numbers for assets
 // For digital and analog sensors, we recommend to use the physical pin id as the asset id
 // For other sensors (I2C and UART), you can select any unique number as the asset id
-#define gasId 0                // Analog sensor is connected to pin A0 on grove shield
+#define rotaryId 2                // Analog sensor is connected to pin A2 on grove shield
+#define rotaryColor 3             // Extra asset to show colours in the SmartLiving dashboard
 
 // Required for the device
 void callback(int pin, String& value);
@@ -60,46 +61,52 @@ void setup()
   while(!Device.Connect(httpServer))                   // Connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("Retrying");
 
-  Device.AddAsset(gasId, "Gas sensor (MQ5)", "gas", false, "number");   // Create the sensor asset for your device
+  Device.AddAsset(rotaryId, "Rotary angle sensor", "rotary", false, "integer");   // Create the sensor asset for your device
+  Device.AddAsset(rotaryColor, "Colour", "Hot-Cold", false, "string");
 
   delay(1000);                                         // Give the WiFi some time to finish everything
   while(!Device.Subscribe(mqttServer, callback))       // Make sure that we can receive message from the AllThingsTalk IOT developer cloud (MQTT). This stops the http connection
     Serial.println("Retrying");
-    
-  pinMode(gasId, INPUT);                               // Initialize the digital pin as an input.
-  Serial.println("Gas sensor is ready for use!");
 
+  pinMode(rotaryId, INPUT);                            // Initialize the digital pin as an input.
+  Serial.println("Rotary angle sensor is ready for use!");
 }
 
-float voltage = 5.0;
+int sensorValAvg = 0;
+int sensorReadAvg;
+int sampleRate = 50;
+
+unsigned int red, blue;
+
 void loop()
 {
-  float sensor_volt; 
-  float RS_air; //  Get the value of RS via in a clear air
-  float R0;  // Get the value of R0 via in H2
-  float sensorValue = 0.0;
- 
-  for(int x = 0 ; x < 100 ; x++)
-  {
-    sensorValue = sensorValue + analogRead(A0);
+  // Calculate average of several values to compensate for sensor wobbling
+  sensorReadAvg = 0;
+  for(int i=0; i<sampleRate; i++) {
+    sensorReadAvg += analogRead(rotaryId);
   }
-  sensorValue = sensorValue/100.0;
- 
-  sensor_volt = sensorValue/1024*voltage;
-  RS_air = (voltage-sensor_volt)/sensor_volt; // omit *RL
-  R0 = RS_air/6.5; // The ratio of RS/R0 is 6.5 in a clear air from Graph (Found using WebPlotDigitizer)
- 
-  Serial.print("sensor_volt = ");
-  Serial.print(sensor_volt);
-  Serial.println("V");
- 
-  Serial.print("R0 = ");
-  Serial.println(R0);
-  delay(1000);
+  sensorReadAvg /= sampleRate;
 
-  Device.Send(String(R0), gasId);
-  
-  Device.Process(); 
+  // Verify if average value has change
+  if (abs(sensorValAvg - sensorReadAvg) > 1)
+  {
+    sensorValAvg = sensorReadAvg;
+    if(sensorValAvg>1020) sensorValAvg = 1020;     // Cap at 1020 (instead of the 1023 max) as we want to map to colours and 1020 = 4x 255
+
+    // Set rgb value for red and blue
+    blue = 255 - sensorValAvg / 4;              // 255,0,0 -> 128,0,128 -> 0,0,255
+    red = sensorValAvg / 4;
+
+    // Compose string representing the colour in hexadecimal
+    String redstr = red <= 15 ? "0" + String(red,HEX) : String(red,HEX);
+    String bluestr = blue <= 15 ? "0" + String(blue,HEX) : String(blue,HEX);
+    String color = "#" + redstr + "00" + bluestr;
+
+    // Send value for both assets to the platform
+    Device.Send(String(sensorValAvg), rotaryId);
+    Device.Send(color, rotaryColor);
+  }
+  Device.Process();
 }
 
 

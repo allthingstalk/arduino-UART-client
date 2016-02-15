@@ -11,7 +11,7 @@ Version 1.0 dd 26/12/2015
 ### Instructions
 1. Setup the Arduino hardware
   - Use an Arduino Genuino 101 IoT board
-  - Connect the Arduino Grove shield, make sure the switch is set to 3.3V
+  - Connect the Arduino Grove shield
   - Connect USB cable to your computer
   - Connect a Grove Push button to pin D2 of the Arduino shield
   - Grove UART wifi to pin UART (D0,D1)

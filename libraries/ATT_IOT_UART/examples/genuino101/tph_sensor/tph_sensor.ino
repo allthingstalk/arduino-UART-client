@@ -8,14 +8,14 @@ communicates through Serial1 of the Genuino 101 board.
 
 Version 1.0 dd 26/12/2015
 
-This sketch is an example sketch to deploy the Grove Loudness sensor (101020063) to the
-AllThingsTalk IoT developer cloud.
+This sketch is an example sketch to deploy the Grove TPH (temperature, pressure, humidity)
+sensor (114990245) to the AllThingsTalk IoT developer cloud.
 
 
 ### Instructions
 1. Setup the Arduino hardware
   - Use an Arduino Genuino 101 IoT board
-  - Connect the Arduino Grove shield, make sure the switch is set to nullV
+  - Connect the Arduino Grove shield, make sure the switch is set to 3.3V
   - Connect USB cable to your computer
   - Connect a Grove TPH board to pin I2C of the Arduino shield
   - Grove UART wifi to pin UART (D0,D1)
@@ -41,11 +41,11 @@ char mqttServer[] = "broker.smartliving.io";                    // MQTT Server A
 // Define PIN numbers for assets
 // For digital and analog sensors, we recommend to use the physical pin id as the asset id
 // For other sensors (I2C and UART), you can select any unique number as the asset id
-#define tempId 0
+#define temperatureId 0
 #define pressuresId 1
 #define humidityId 2
 
-//required for the device
+// Required for the device
 void callback(int pin, String& value);
 
 
@@ -59,12 +59,12 @@ void setup()
   
   while(!Device.StartWifi())
     Serial.println("Retrying...");
-  while(!Device.Init(DEVICEID, CLIENTID, CLIENTKEY))           //if we can't succeed to initialize and set the device credentials, there is no point to continue
+  while(!Device.Init(DEVICEID, CLIENTID, CLIENTKEY))           // If we can't succeed to initialize and set the device credentials, there is no point to continue
     Serial.println("Retrying...");
-  while(!Device.Connect(httpServer))                           // connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
+  while(!Device.Connect(httpServer))                           // Connect the device with the AllThingsTalk IOT developer cloud. No point to continue if we can't succeed at this
     Serial.println("Retrying");
     
-  Device.AddAsset(tempId, "temperature", "temperature", false, "{\"type\": \"number\", \"minimum\": -40, \"maximum\": 85, \"unit\": \"°\"}");   // Create the Sensor asset for your device
+  Device.AddAsset(temperatureId, "temperature", "temperature", false, "{\"type\": \"number\", \"minimum\": -40, \"maximum\": 85, \"unit\": \"°\"}");   // Create the Sensor asset for your device
   Device.AddAsset(pressuresId, "pressure", "pressure", false, "{\"type\": \"number\", \"minimum\": 0, \"maximum\": 1100, \"unit\": \"hPa\"}");
   Device.AddAsset(humidityId, "humidity", "humidity", false, "{\"type\": \"number\", \"minimum\": 0, \"maximum\": 100, \"unit\": \"RH\"}");
   
@@ -104,7 +104,7 @@ void loop()
   Serial.println(" hPa");
   Serial.println();
   
-  Device.Send(String(temp), tempId);
+  Device.Send(String(temp), temperatureId);
   Device.Send(String(hum), pressuresId);
   Device.Send(String(pres), humidityId);
   
