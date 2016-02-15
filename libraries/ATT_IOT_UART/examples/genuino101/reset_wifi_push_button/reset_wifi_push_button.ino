@@ -34,7 +34,7 @@ char httpServer[] = "api.smartliving.io";                       // HTTP API Serv
 char mqttServer[] = "broker.smartliving.io";                    // MQTT Server Address
 
 // Define PIN numbers for assets
-#define DigitalSensor 2                         // Analog Sensor is connected to pin A0 on grove shield 
+#define DigitalSensor 2
 #define Led 3                                   // Feedback from the cloud to show that the connection is working
 
 //required for the device
