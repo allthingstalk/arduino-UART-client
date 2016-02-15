@@ -17,7 +17,7 @@ AllThingsTalk IoT developer cloud.
   - Use an Arduino Genuino 101 IoT board
   - Connect the Arduino Grove shield, make sure the switch is set to nullV
   - Connect USB cable to your computer
-  - Connect a Grove Loudness sensor to pin I2C of the Arduino shield
+  - Connect a Grove TPH board to pin I2C of the Arduino shield
   - Grove UART wifi to pin UART (D0,D1)
 2. Add 'ATT_IOT_UART' library to your Arduino Environment
      More info can be found at http://arduino.cc/en/Guide/Libraries
