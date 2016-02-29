@@ -77,8 +77,9 @@ void setup()
 
 void clearBufferArray()                 // Function to clear buffer array
 {
-  for (int i=0; i<count;i++)
-    { buffer[i]=NULL;}                  // Clear all indices of array with command NULL
+  for (int i=0; i<sizeof(buffer);i++)
+     buffer[i]=NULL;                        // Clear all indices of array with command NULL
+  count = 0;                                // Set counter of while loop to zero      
 }
 
 
@@ -86,17 +87,22 @@ void loop()
 {
   if (SoftSerial.available())                 // Data is coming from software serial port comes from SoftSerial shield
   {
-    while(SoftSerial.available())             // Reading data into char array 
+    bool foundStart = false;
+	  while(SoftSerial.available())          // reading RFID data into char array 
     {
-      buffer[count++] = SoftSerial.read();    // Writing data into array
-      if(count == 63) break;
+      char val = SoftSerial.read();
+      if(val == 2)                              // 2 indicates start of text
+        foundStart = true;
+      else if(foundStart == true){
+        if(val == 3 || count == 64) break;      //3 indicates end of text.
+        buffer[count++]= val;     // writing RFID data into array
+      }
       delay(10);                              // Delay because the Genuino 101 seems to be to fast for the serial port routine
     }
     buffer[count++] = '\0';                   // Needs a terminating String char.
     Serial.print("RFID tag: ");Serial.println(buffer);
     Device.Send(buffer, readerId);    
     clearBufferArray();                       // Call clearBufferArray function to clear the stored data from the array
-    count = 0;                                // Set counter of while loop to zero      
   }
   Device.Process();
 }
