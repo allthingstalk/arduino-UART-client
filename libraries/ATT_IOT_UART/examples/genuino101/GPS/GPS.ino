@@ -71,7 +71,8 @@ void setup()
   while(!Device.Subscribe(mqttServer, callback))       // Make sure that we can receive message from the AllThingsTalk IOT developer cloud (MQTT). This stops the http connection
     Serial.println("Retrying");
 
-  pinMode(gpsId, INPUT);                               // Initialize the digital pin as an input.
+  //pinMode(gpsId, INPUT);                               // Initialize the digital pin as an input.
+  SoftSerial.begin(9600);                 // the SoftSerial baud rate
   Serial.println("GPS module is ready for use!");
 }
 
@@ -85,7 +86,7 @@ void loop()
 {
   if(readCoordinates() == true) SendValue();
   Device.Process();
-  delay(5000);
+  delay(2000);
 }
 
 void SendValue()
