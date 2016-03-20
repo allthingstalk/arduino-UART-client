@@ -15,7 +15,7 @@ sensor (114990245) to the AllThingsTalk IoT developer cloud.
 ### Instructions
 1. Setup the Arduino hardware
   - Use an Arduino Genuino 101 IoT board
-  - Connect the Arduino Grove shield, make sure the switch is set to 3.3V
+  - Connect the Arduino Grove shield, make sure the switch is set to 5V
   - Connect USB cable to your computer
   - Connect a Grove TPH board to pin I2C of the Arduino shield
   - Grove UART wifi to pin UART (D0,D1)
@@ -105,8 +105,8 @@ void loop()
   Serial.println();
   
   Device.Send(String(temp), temperatureId);
-  Device.Send(String(hum), pressuresId);
-  Device.Send(String(pres), humidityId);
+  Device.Send(String(hum), humidityId);
+  Device.Send(String(pres), pressuresId);
   
   Device.Process(); 
   delay(1000);
