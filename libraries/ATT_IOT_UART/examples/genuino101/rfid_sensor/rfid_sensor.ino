@@ -71,7 +71,6 @@ void setup()
   while(!Device.Subscribe(mqttServer, callback))       // Make sure that we can receive message from the AllThingsTalk IOT developer cloud (MQTT). This stops the http connection
     Serial.println("Retrying");
 
-  pinMode(readerId, INPUT);                       // Initialize the digital pin as an input.
   Serial.println("RFID reader is ready for use!");
 }
 
