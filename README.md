@@ -1,3 +1,9 @@
+### This library is deprecated
+
+arduino-UART-client library is deprecated, and will not receive any further updates.
+
+---
+
 arduino-UART-client
 ==================
 
